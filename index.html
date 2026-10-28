@@ -90,7 +90,9 @@ col.half { width: 19%; }
 th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
 th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; background: var(--surface); position: sticky; top: 0; }
 tbody tr:last-child td { border-bottom: 0; }
-td.num { font-family: var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; width: 44px; }
+td.num { font-family: var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; font-size: 13px; padding-left: 8px; padding-right: 4px; }
+td.num, th:first-child { position: sticky; left: 0; z-index: 2; background: var(--surface); box-shadow: 1px 0 0 var(--line); }
+th:first-child { z-index: 3; padding-left: 8px; padding-right: 4px; }
 .cell { display: flex; gap: 8px; align-items: flex-start; }
 .cell .txt { flex: 1; min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 td.title .txt { font-weight: 600; }
@@ -160,7 +162,7 @@ td.small .txt { font-size: 13.5px; color: var(--fg); }
 
   <div class="table-box">
     <table>
-      <colgroup><col style="width:48px"><col><col style="width:110px"><col style="width:80px"><col class="half"><col class="half"></colgroup>
+      <colgroup><col style="width:34px"><col><col style="width:110px"><col style="width:80px"><col class="half"><col class="half"></colgroup>
       <thead>
         <tr><th>#</th><th>Title</th><th>Category</th><th>Weight</th><th>Justification</th><th>Evidence</th></tr>
       </thead>
