@@ -81,6 +81,7 @@ textarea {
 .wrow .cell { flex: 1 1 260px; min-width: 0; }
 .wlabel { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; padding-top: 5px; width: 64px; }
 .mono { font-family: var(--font-mono); font-size: 13.5px; padding-top: 4px; font-variant-numeric: tabular-nums; }
+.sumfoot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
 .outcome { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; width: fit-content; }
 .outcome input { width: 18px; height: 18px; accent-color: var(--ok); margin: 0; opacity: 1; }
 .tag { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); }
@@ -157,10 +158,13 @@ td.copied, td.num.copied { background: var(--ok-soft); }
         <button type="button" class="copy" id="copyWeights" aria-label="Copy weight string" title="Copy weights"></button>
       </div>
     </div>
-    <label class="outcome" for="allOutcome">
-      <input type="checkbox" id="allOutcome" disabled>
-      <span>All Outcome Rubrics</span>
-    </label>
+    <div class="sumfoot">
+      <label class="outcome" for="allOutcome">
+        <input type="checkbox" id="allOutcome" disabled>
+        <span>All Outcome Rubrics</span>
+      </label>
+      <button class="btn ghost" id="clearGreen" type="button">Clear green highlights</button>
+    </div>
   </div>
 
   <div class="table-box">
@@ -318,6 +322,7 @@ const drop = $("drop");
 drop.addEventListener("drop", e => readFile(e.dataTransfer.files[0]));
 document.addEventListener("dragover", e => e.preventDefault());
 document.addEventListener("drop", e => { e.preventDefault(); if (!drop.contains(e.target)) readFile(e.dataTransfer.files[0]); });
+$("clearGreen").addEventListener("click", () => { document.querySelectorAll(".copied").forEach(el => el.classList.remove("copied")); toast("Highlights cleared"); });
 $("loadPaste").addEventListener("click", () => load($("paste").value, "Pasted JSON"));
 
 render(normalize(SAMPLE), "Example rows");
