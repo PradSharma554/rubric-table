@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rubric Table</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a compact toolbar over one full-width table; each cell carries its own copy button. */
+:root {
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --fg: #1d2330;
+  --muted: #5d6676;
+  --line: #dde1e8;
+  --accent: #1f6f8b;
+  --accent-soft: #e3f0f4;
+  --ok: #2e7d4f;
+  --w1: #eef1f5; --w3: #fdf1dc; --w5: #fbe3e1;
+  --w1-fg: #4a5464; --w3-fg: #8a5a00; --w5-fg: #a02a22;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #13161c; --surface: #1b1f27; --fg: #e4e7ec; --muted: #9aa3b2; --line: #2c323d;
+    --accent: #5fb4cf; --accent-soft: #1d3540; --ok: #6cc795;
+    --w1: #262b34; --w3: #3a2f17; --w5: #3d2120;
+    --w1-fg: #b6bdc9; --w3-fg: #f0c36a; --w5-fg: #f2938b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #13161c; --surface: #1b1f27; --fg: #e4e7ec; --muted: #9aa3b2; --line: #2c323d;
+  --accent: #5fb4cf; --accent-soft: #1d3540; --ok: #6cc795;
+  --w1: #262b34; --w3: #3a2f17; --w5: #3d2120;
+  --w1-fg: #b6bdc9; --w3-fg: #f0c36a; --w5-fg: #f2938b;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { color-scheme: light; }
+body { margin: 0;
+  background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+}
+.wrap { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+h1 { font-size: 22px; margin: 0; font-weight: 700; text-wrap: balance; }
+.sub { color: var(--muted); margin: 0; }
+.drop {
+  border: 1.5px dashed var(--line); border-radius: 10px; background: var(--surface);
+  padding: 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+}
+.drop.over { border-color: var(--accent); background: var(--accent-soft); }
+.btn {
+  font: 600 14px var(--font-body); border: 1px solid var(--accent); color: #fff; background: var(--accent);
+  border-radius: 7px; padding: 8px 14px; cursor: pointer;
+}
+:root:not([data-theme="light"]) .btn { color: var(--bg); }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .btn { color: #fff; } }
+:root[data-theme="light"] .btn { color: #fff; }
+.btn.ghost { background: transparent; color: var(--accent); }
+.btn:focus-visible, .copy:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.drop p { margin: 0; color: var(--muted); flex: 1 1 220px; min-width: 0; }
+details { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+summary { cursor: pointer; font-weight: 600; color: var(--muted); }
+textarea {
+  width: 100%; min-height: 120px; margin-top: 10px; font: 13px var(--font-mono); color: var(--fg);
+  background: var(--bg); border: 1px solid var(--line); border-radius: 7px; padding: 10px; resize: vertical;
+}
+.row-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.status { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; color: var(--muted); font-size: 14px; }
+.status b { color: var(--fg); font-variant-numeric: tabular-nums; }
+.tag { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); }
+.error { color: var(--w5-fg); background: var(--w5); border-radius: 7px; padding: 8px 12px; }
+.table-box { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; min-width: 980px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; background: var(--surface); position: sticky; top: 0; }
+tbody tr:last-child td { border-bottom: 0; }
+td.num { font-family: var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; width: 44px; }
+.cell { display: flex; gap: 8px; align-items: flex-start; }
+.cell .txt { flex: 1; min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+td.title .txt { font-weight: 600; }
+td.small .txt { font-size: 13.5px; color: var(--fg); }
+.pill { font: 600 13px var(--font-mono); padding: 2px 8px; border-radius: 6px; display: inline-block; }
+.pill.w1 { background: var(--w1); color: var(--w1-fg); }
+.pill.w3 { background: var(--w3); color: var(--w3-fg); }
+.pill.w5 { background: var(--w5); color: var(--w5-fg); }
+.copy {
+  flex: none; width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg);
+  color: var(--muted); cursor: pointer; display: inline-grid; place-items: center; padding: 0;
+}
+.copy:hover { color: var(--accent); border-color: var(--accent); }
+.copy.done { color: var(--ok); border-color: var(--ok); }
+.copy svg { width: 15px; height: 15px; }
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  background: var(--fg); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 14px;
+}
+@media (prefers-reduced-motion: no-preference) { .copy { transition: color .15s, border-color .15s; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Rubric Table</h1>
+      <p class="sub">Load a rubric JSON to see every criterion as a row. Click a copy button to copy that one field.</p>
+    </div>
+  </header>
+
+  <div class="drop" id="drop">
+    <button class="btn" id="pick" type="button">Upload JSON</button>
+    <input type="file" id="file" accept=".json,application/json" hidden>
+    <p>Or drop a <code>.json</code> file here. It needs a list of criteria with <code>title</code>, <code>category</code>, <code>weight</code>, <code>justification</code> and <code>evidence</code>.</p>
+  </div>
+
+  <details id="pasteBox">
+    <summary>Paste JSON instead</summary>
+    <textarea id="paste" spellcheck="false" placeholder='[{"title": "The Agent ...", "category": "Outcome", "weight": 3, "justification": "...", "evidence": "..."}]'></textarea>
+    <div class="row-actions">
+      <button class="btn" id="loadPaste" type="button">Show table</button>
+    </div>
+  </details>
+
+  <div class="status" id="status"></div>
+  <div id="err" class="error" hidden></div>
+
+  <div class="table-box">
+    <table>
+      <thead>
+        <tr><th>#</th><th>Title</th><th>Category</th><th>Weight</th><th>Justification</th><th>Evidence</th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</div>
+<div class="toast" id="toast" hidden>Copied</div>
+
+<script>
+const SAMPLE = [
+  {title: "The Agent sends the weekly summary to the team channel.", category: "Outcome", weight: 1,
+   justification: "The request asks for the summary to be shared with the team.",
+   evidence: "Passes when a message with the summary appears in the team channel; a summary sent anywhere else fails."},
+  {title: "The Agent reports the corrected total of $4,180 after reconciling the two invoices.", category: "Outcome", weight: 5,
+   justification: "The figure only exists once both invoices are compared and the duplicate line is removed.",
+   evidence: "Passes when the reported total is $4,180; the uncorrected $4,560 fails."},
+  {title: "The Agent confirms the owner before scheduling the review.", category: "Process", weight: 3,
+   justification: "The order matters: the review needs the owner's confirmation first.",
+   evidence: "Passes when the confirmation happens before the review is scheduled."}
+];
+const FIELDS = ["title", "category", "weight", "justification", "evidence"];
+const ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>';
+const $ = id => document.getElementById(id);
+
+function clean(v) {
+  if (v === null || v === undefined) return "";
+  let s = String(v);
+  s = s.replace(/\[([^\]]+)\]\(mailto:[^)]+\)/g, "$1");
+  return s.trim();
+}
+
+function normalize(data) {
+  if (data && !Array.isArray(data)) {
+    const key = ["criteria", "rubric", "rubrics", "items", "rows"].find(k => Array.isArray(data[k]));
+    if (key) data = data[key];
+  }
+  if (!Array.isArray(data)) throw new Error("The JSON needs to be a list of criteria, or an object with a \"criteria\" list.");
+  return data.map(r => ({
+    title: clean(r.title ?? r.criterion ?? r.name),
+    category: clean(r.category ?? r.type),
+    weight: clean(r.weight),
+    justification: clean(r.justification),
+    evidence: clean(r.evidence)
+  }));
+}
+
+function render(rows, label) {
+  const tb = $("rows");
+  tb.innerHTML = "";
+  rows.forEach((r, i) => {
+    const tr = document.createElement("tr");
+    const n = document.createElement("td");
+    n.className = "num"; n.textContent = i + 1; tr.appendChild(n);
+    FIELDS.forEach(f => {
+      const td = document.createElement("td");
+      td.className = f === "title" ? "title" : (f === "justification" || f === "evidence") ? "small" : "";
+      const cell = document.createElement("div"); cell.className = "cell";
+      const txt = document.createElement("div"); txt.className = "txt";
+      if (f === "weight" && r.weight !== "") {
+        const p = document.createElement("span");
+        p.className = "pill w" + (["1","3","5"].includes(r.weight) ? r.weight : "1");
+        p.textContent = r.weight; txt.appendChild(p);
+      } else txt.textContent = r[f];
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "copy"; b.innerHTML = ICON;
+      b.setAttribute("aria-label", "Copy " + f + " of row " + (i + 1));
+      b.title = "Copy " + f;
+      b.addEventListener("click", () => copy(r[f], b, txt));
+      cell.append(txt, b); td.appendChild(cell); tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  });
+  const total = rows.reduce((s, r) => s + (parseFloat(r.weight) || 0), 0);
+  const cats = {};
+  rows.forEach(r => { cats[r.category || "None"] = (cats[r.category || "None"] || 0) + 1; });
+  $("status").innerHTML = "";
+  const tag = document.createElement("span"); tag.className = "tag"; tag.textContent = label; $("status").appendChild(tag);
+  const add = (k, v) => { const s = document.createElement("span"); s.innerHTML = k + " <b></b>"; s.querySelector("b").textContent = v; $("status").appendChild(s); };
+  add("Rows", rows.length);
+  add("Total weight", total);
+  Object.entries(cats).forEach(([k, v]) => add(k, v));
+}
+
+let toastTimer;
+function toast(msg) {
+  const t = $("toast"); t.textContent = msg; t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 1400);
+}
+
+function copy(text, btn, node) {
+  const ok = () => {
+    btn.classList.add("done"); btn.innerHTML = CHECK; toast("Copied");
+    setTimeout(() => { btn.classList.remove("done"); btn.innerHTML = ICON; }, 1200);
+  };
+  const fallback = () => {
+    const range = document.createRange(); range.selectNodeContents(node);
+    const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+    let done = false;
+    try { done = document.execCommand("copy"); } catch (e) {}
+    if (done) ok(); else toast("Text selected. Press Ctrl+C or Cmd+C to copy.");
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(ok, fallback);
+  } else fallback();
+}
+
+function load(text, name) {
+  $("err").hidden = true;
+  try {
+    const rows = normalize(JSON.parse(text));
+    render(rows, name);
+  } catch (e) {
+    $("err").textContent = "Couldn't read that file: " + e.message;
+    $("err").hidden = false;
+  }
+}
+
+function readFile(f) {
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => load(r.result, f.name);
+  r.onerror = () => { $("err").textContent = "Couldn't open that file. Try choosing it again."; $("err").hidden = false; };
+  r.readAsText(f);
+}
+
+$("pick").addEventListener("click", () => $("file").click());
+$("file").addEventListener("change", e => { readFile(e.target.files[0]); e.target.value = ""; });
+const drop = $("drop");
+["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => readFile(e.dataTransfer.files[0]));
+document.addEventListener("dragover", e => e.preventDefault());
+document.addEventListener("drop", e => { e.preventDefault(); if (!drop.contains(e.target)) readFile(e.dataTransfer.files[0]); });
+$("loadPaste").addEventListener("click", () => load($("paste").value, "Pasted JSON"));
+
+render(normalize(SAMPLE), "Example rows");
+</script>
+</body>
+</html>
