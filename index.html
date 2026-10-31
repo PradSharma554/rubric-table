@@ -90,6 +90,10 @@ textarea {
 .wbox.g { background: var(--ok-soft); }
 .wbox.r { background: var(--w5); }
 .wbox.end { box-shadow: inset 0 -3px 0 currentColor; }
+.wtip {
+  position: fixed; z-index: 20; pointer-events: none; transform: translate(-50%, -100%);
+  background: var(--fg); color: var(--bg); font: 600 12px var(--font-mono); padding: 3px 7px; border-radius: 5px;
+}
 .wtools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 8px; }
 .btn.small { padding: 5px 10px; font-size: 13px; }
 .whint { font-size: 12.5px; color: var(--muted); margin: 0; }
@@ -190,6 +194,7 @@ td.copied, td.num.copied { background: var(--ok-soft); }
   </div>
 </div>
 <div class="toast" id="toast" hidden>Copied</div>
+<div class="wtip" id="wtip" hidden></div>
 
 <script>
 const SAMPLE = [
@@ -284,19 +289,30 @@ function render(rows, label) {
   $("allOutcome").checked = rows.length > 0 && rows.every(r => r.category.toLowerCase() === "outcome");
 }
 
-let WEIGHTS = [], BOUNDS = [];
+let WEIGHTS = [], BOUNDS = [], tipTimer;
+function hideTip() { clearTimeout(tipTimer); $("wtip").hidden = true; }
+window.addEventListener("scroll", hideTip, true);
 function drawWeights() {
   const g = $("weights"); g.innerHTML = "";
   WEIGHTS.forEach((w, i) => {
     const b = document.createElement("button");
     b.type = "button"; b.className = "wbox"; b.textContent = w;
     b.setAttribute("aria-label", "Weight " + w + ", row " + (i + 1));
-    b.title = "Row " + (i + 1);
     let start = 0;
     for (let k = 0; k < BOUNDS.length; k++) {
       if (i <= BOUNDS[k]) { b.classList.add(k % 2 ? "r" : "g"); if (i === BOUNDS[k]) b.classList.add("end"); break; }
     }
     b.addEventListener("click", () => clickWeight(i));
+    b.addEventListener("mouseenter", () => {
+      clearTimeout(tipTimer);
+      tipTimer = setTimeout(() => {
+        const r = b.getBoundingClientRect(), t = $("wtip");
+        t.textContent = "R" + (i + 1);
+        t.style.left = (r.left + r.width / 2) + "px"; t.style.top = (r.top - 4) + "px";
+        t.hidden = false;
+      }, 2000);
+    });
+    b.addEventListener("mouseleave", hideTip);
     g.appendChild(b);
   });
 }
