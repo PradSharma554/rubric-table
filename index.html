@@ -80,17 +80,20 @@ textarea {
 .wrow .cell { flex: 1 1 260px; min-width: 0; }
 .wlabel { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; padding-top: 5px; width: 64px; }
 .mono { font-family: var(--font-mono); font-size: 13.5px; padding-top: 4px; font-variant-numeric: tabular-nums; }
-.wgrid { display: flex; flex-wrap: wrap; gap: 4px; padding-top: 0; }
+.wgrid { display: grid; grid-template-columns: repeat(auto-fill, 34px); border-top: 1px solid var(--line); border-left: 1px solid var(--line); width: fit-content; max-width: 100%; }
 .wbox {
-  font: 600 13.5px var(--font-mono); font-variant-numeric: tabular-nums; min-width: 30px; height: 28px; padding: 0 6px;
-  border: 1px solid var(--line); border-radius: 5px; background: var(--bg); color: var(--fg); cursor: pointer;
+  font: 600 13.5px var(--font-mono); font-variant-numeric: tabular-nums; height: 30px; padding: 0;
+  border: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); border-radius: 0;
+  background: transparent; color: var(--fg); cursor: pointer;
 }
-.wbox:hover { border-color: var(--accent); }
-.wbox:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.wbox.g { background: var(--ok-soft); border-color: var(--ok); }
-.wbox.r { background: var(--w5); border-color: var(--w5-fg); }
+.wbox:hover { background: var(--accent-soft); }
+.wbox:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.wbox.g { background: var(--ok-soft); }
+.wbox.r { background: var(--w5); }
 .wbox.end { box-shadow: inset 0 -3px 0 currentColor; }
-.whint { font-size: 12.5px; color: var(--muted); margin: 4px 0 0; }
+.wtools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 8px; }
+.btn.small { padding: 5px 10px; font-size: 13px; }
+.whint { font-size: 12.5px; color: var(--muted); margin: 0; }
 .sumfoot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
 .outcome { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; width: fit-content; }
 .outcome input { width: 18px; height: 18px; accent-color: var(--ok); margin: 0; opacity: 1; }
@@ -164,7 +167,7 @@ td.copied, td.num.copied { background: var(--ok-soft); }
     <div class="wrow">
       <span class="wlabel">Weights</span>
       <div class="cell">
-        <div class="txt"><div class="wgrid" id="weights"></div><p class="whint">Click a box to close a group up to it. Groups alternate green and red. Click an earlier box to cut back.</p></div>
+        <div class="txt"><div class="wgrid" id="weights"></div><div class="wtools"><button class="btn ghost small" id="resetWeights" type="button">Reset weight colors</button><p class="whint">Click a weight to close a group up to it. Groups alternate green and red; click an earlier weight to cut back.</p></div></div>
         <button type="button" class="copy" id="copyWeights" aria-label="Copy weight string" title="Copy weights"></button>
       </div>
     </div>
@@ -357,6 +360,7 @@ const drop = $("drop");
 drop.addEventListener("drop", e => readFile(e.dataTransfer.files[0]));
 document.addEventListener("dragover", e => e.preventDefault());
 document.addEventListener("drop", e => { e.preventDefault(); if (!drop.contains(e.target)) readFile(e.dataTransfer.files[0]); });
+$("resetWeights").addEventListener("click", () => { BOUNDS = []; drawWeights(); toast("Weight colors reset"); });
 $("clearGreen").addEventListener("click", () => { document.querySelectorAll(".copied").forEach(el => el.classList.remove("copied")); BOUNDS = []; drawWeights(); toast("Highlights cleared"); });
 $("loadPaste").addEventListener("click", () => load($("paste").value, "Pasted JSON"));
 
