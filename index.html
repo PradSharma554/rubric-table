@@ -114,6 +114,9 @@ th:first-child { z-index: 3; padding-left: 8px; padding-right: 4px; }
 .cell { display: flex; gap: 8px; align-items: flex-start; }
 .cell .txt { flex: 1; min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 td.title .txt { font-weight: 600; }
+td.title .txt, td.small .txt {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden;
+}
 td.click { cursor: pointer; }
 td.click:hover { background: var(--accent-soft); }
 td.click.copied:hover { background: var(--ok-soft); }
