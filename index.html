@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-/* Layout: a compact toolbar over one full-width table; each cell carries its own copy button. */
+/* Layout: a compact toolbar over one full-width table; clicking a text cell copies it. */
 :root {
   --bg: #f5f6f8;
   --surface: #ffffff;
@@ -114,10 +114,9 @@ th:first-child { z-index: 3; padding-left: 8px; padding-right: 4px; }
 .cell { display: flex; gap: 8px; align-items: flex-start; }
 .cell .txt { flex: 1; min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 td.title .txt { font-weight: 600; }
-td.title .txt, td.small .txt {
-  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; cursor: pointer;
-}
-td.title .txt.open, td.small .txt.open { display: block; -webkit-line-clamp: unset; line-clamp: none; overflow: visible; }
+td.click { cursor: pointer; }
+td.click:hover { background: var(--accent-soft); }
+td.click.copied:hover { background: var(--ok-soft); }
 td.small .txt { font-size: 13.5px; color: var(--fg); }
 .pill { font: 600 13px var(--font-mono); padding: 2px 8px; border-radius: 6px; display: inline-block; }
 .pill.w1 { background: var(--w1); color: var(--w1-fg); }
@@ -145,7 +144,7 @@ td.copied, td.num.copied { background: var(--ok-soft); }
   <header>
     <div>
       <h1>Rubric Table</h1>
-      <p class="sub">Load a rubric JSON to see every criterion as a row. Click a copy button to copy that one field.</p>
+      <p class="sub">Load a rubric JSON to see every criterion as a row. Click a title, justification or evidence cell to copy it.</p>
     </div>
   </header>
 
@@ -253,19 +252,12 @@ function render(rows, label) {
         p.textContent = r.weight; txt.appendChild(p);
       } else {
         txt.textContent = r[f];
-        if (f === "title" || f === "justification" || f === "evidence") {
-          txt.title = "Click to expand";
-          txt.addEventListener("click", () => txt.classList.toggle("open"));
-        }
       }
       cell.appendChild(txt);
       if (f !== "category" && f !== "weight") {
-        const b = document.createElement("button");
-        b.type = "button"; b.className = "copy"; b.innerHTML = ICON;
-        b.setAttribute("aria-label", "Copy " + f + " of row " + (i + 1));
-        b.title = "Copy " + f;
-        b.addEventListener("click", () => copy(r[f], b, txt));
-        cell.appendChild(b);
+        td.classList.add("click");
+        td.title = "Click to copy " + f;
+        td.addEventListener("click", () => copy(r[f], null, txt, td));
       }
       td.appendChild(cell); tr.appendChild(td);
     });
@@ -285,7 +277,7 @@ function render(rows, label) {
   drawWeights();
   const wb = $("copyWeights");
   wb.innerHTML = ICON;
-  wb.onclick = () => copy(wstr, wb, $("weights"));
+  wb.onclick = () => copy(wstr, wb, $("weights"), wb.closest(".cell"));
   $("allOutcome").checked = rows.length > 0 && rows.every(r => r.category.toLowerCase() === "outcome");
 }
 
@@ -331,11 +323,14 @@ function toast(msg) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 1400);
 }
 
-function copy(text, btn, node) {
+function copy(text, btn, node, host) {
   const ok = () => {
-    btn.classList.add("done"); btn.innerHTML = CHECK; toast("Copied");
-    const host = btn.closest("td"); if (host) host.classList.add("copied");
-    setTimeout(() => { btn.classList.remove("done"); btn.innerHTML = ICON; }, 1200);
+    toast("Copied");
+    if (host) host.classList.add("copied");
+    if (btn) {
+      btn.classList.add("done"); btn.innerHTML = CHECK;
+      setTimeout(() => { btn.classList.remove("done"); btn.innerHTML = ICON; }, 1200);
+    }
   };
   const fallback = () => {
     const range = document.createRange(); range.selectNodeContents(node);
