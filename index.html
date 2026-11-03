@@ -108,10 +108,9 @@ td.click { cursor: pointer; }
 td.click:hover { background: var(--accent-soft); }
 td.click.copied:hover { background: var(--ok-soft); }
 td.wclick { cursor: pointer; }
-tr.g td { background: var(--grp-a); }
-tr.r td { background: var(--grp-b); }
-tr.end td { box-shadow: inset 0 -2px 0 var(--fg); }
-tr.end td.num { box-shadow: inset 0 -2px 0 var(--fg), 1px 0 0 var(--line); }
+tr.g td.wclick { background: var(--grp-a); }
+tr.r td.wclick { background: var(--grp-b); }
+tr.end td.wclick { box-shadow: inset 0 -2px 0 var(--fg); }
 tr td.copied, tr td.click.copied:hover { background: var(--ok-soft); }
 td.small .txt { font-size: 13.5px; color: var(--fg); }
 .pill { font: 600 13px var(--font-mono); padding: 2px 8px; border-radius: 6px; display: inline-block; }
