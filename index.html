@@ -107,6 +107,12 @@ td.title .txt, td.small .txt {
 td.click { cursor: pointer; }
 td.click:hover { background: var(--accent-soft); }
 td.click.copied:hover { background: var(--ok-soft); }
+td.wclick { cursor: pointer; }
+tr.g td { background: var(--grp-a); }
+tr.r td { background: var(--grp-b); }
+tr.end td { box-shadow: inset 0 -2px 0 var(--fg); }
+tr.end td.num { box-shadow: inset 0 -2px 0 var(--fg), 1px 0 0 var(--line); }
+tr td.copied, tr td.click.copied:hover { background: var(--ok-soft); }
 td.small .txt { font-size: 13.5px; color: var(--fg); }
 .pill { font: 600 13px var(--font-mono); padding: 2px 8px; border-radius: 6px; display: inline-block; }
 .pill.w1 { background: var(--w1); color: var(--w1-fg); }
@@ -159,7 +165,7 @@ td.copied, td.num.copied { background: var(--ok-soft); }
     <div class="wrow">
       <span class="wlabel">Weights</span>
       <div class="cell">
-        <div class="txt"><div class="wgrid" id="weights"></div><div class="wtools"><button class="btn ghost small" id="resetWeights" type="button">Reset weight colors</button><p class="whint">Click a weight to close a group up to it. Groups alternate dark and light gray; click an earlier weight to cut back.</p></div></div>
+        <div class="txt"><div class="wgrid" id="weights"></div><div class="wtools"><button class="btn ghost small" id="resetWeights" type="button">Reset weight colors</button><p class="whint">Click a weight here or in the table to close a group up to it. Groups alternate dark and light gray; click an earlier weight to cut back.</p></div></div>
         <button type="button" class="copy" id="copyWeights" aria-label="Copy weight string" title="Copy weights"></button>
       </div>
     </div>
@@ -227,8 +233,10 @@ function normalize(data) {
 function render(rows, label) {
   const tb = $("rows");
   tb.innerHTML = "";
+  ROW_TRS = [];
   rows.forEach((r, i) => {
     const tr = document.createElement("tr");
+    ROW_TRS.push(tr);
     const n = document.createElement("td");
     n.className = "num"; n.textContent = i + 1; tr.appendChild(n);
     FIELDS.forEach(f => {
@@ -248,6 +256,11 @@ function render(rows, label) {
         td.classList.add("click");
         td.title = "Click to copy " + f;
         td.addEventListener("click", () => copy(r[f], null, txt, td));
+      }
+      if (f === "weight") {
+        td.classList.add("wclick");
+        td.title = "Click to close a group up to row " + (i + 1);
+        td.addEventListener("click", () => clickWeight(i));
       }
       td.appendChild(cell); tr.appendChild(td);
     });
@@ -271,7 +284,7 @@ function render(rows, label) {
   $("allOutcome").checked = rows.length > 0 && rows.every(r => r.category.toLowerCase() === "outcome");
 }
 
-let WEIGHTS = [], BOUNDS = [], tipTimer;
+let WEIGHTS = [], BOUNDS = [], ROW_TRS = [], tipTimer;
 function hideTip() { clearTimeout(tipTimer); $("wtip").hidden = true; }
 window.addEventListener("scroll", hideTip, true);
 function drawWeights() {
@@ -296,6 +309,12 @@ function drawWeights() {
     });
     b.addEventListener("mouseleave", hideTip);
     g.appendChild(b);
+  });
+  ROW_TRS.forEach((tr, i) => {
+    tr.classList.remove("g", "r", "end");
+    for (let k = 0; k < BOUNDS.length; k++) {
+      if (i <= BOUNDS[k]) { tr.classList.add(k % 2 ? "r" : "g"); if (i === BOUNDS[k]) tr.classList.add("end"); break; }
+    }
   });
 }
 function clickWeight(i) {
